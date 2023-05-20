@@ -1,9 +1,7 @@
 import streamlit as st
-import pandas as pd
 import gspread
-from gspread_pandas import Spread, Client
 from google.oauth2 import service_account
-from gsheetsdb import connect
+
 
 # Disable certificate verification (Not necessary always)
 import ssl
