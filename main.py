@@ -1,5 +1,6 @@
 import streamlit as st
 import gspread
+import pandas as pd
 from google.oauth2 import service_account
 
 
@@ -27,23 +28,45 @@ sheet_url = st.secrets["private_gsheets_url"]
 client2 = gspread.authorize(credentials=credentials)
 sheet = client2.open_by_url(sheet_url).sheet1
 
+# Read Dealer Data
+df = pd.read_csv('Dealers.csv')
+
 # Display Image
 st.image(
         "https://i1.wp.com/hrnxt.com/wp-content/uploads/2021/07/Hindustan-Petroleum.jpg?resize=580%2C239&ssl=1",
         # Manually Adjust the width of the image as per requirement
     )
 # Create a form
-st.title("Bills")
-outlet_name = st.selectbox("Outlet Name", ["McDonald's", "Starbucks", "KFC"])
+st.title("Bharo Aur Jeeto Dhamaka")
+st.subheader("Please fill the details of Bill")
+district_name = st.selectbox("District",options=df['DISTRICT'].unique())
+
+df = df[df['DISTRICT'] == district_name]
+if district_name:
+    outlet_name = st.selectbox("Petrol Pump", df['PETROL_PUMP'])
 date = st.date_input("Date")
-amount = st.number_input("Amount")
-bill_no = st.number_input("Bill No")
+
+veh_type = st.radio("Type of Vehicle", ('2/3 Wheeler', '4 Wheeler'), horizontal=True)
+if veh_type == '2/3 Wheeler':
+    amount = st.number_input("Amount",min_value=350)
+else:
+    amount = st.number_input("Amount", min_value=2000)
+
+bill_no = st.number_input("Bill No",format="%0.0f")
+contact_no = st.number_input("Contact No.",format="%0.0f")
+
+st.info('Please retail the original bill till end of campaign period.', icon="ℹ️")
 
 # Submit the form
-if st.button("Submit"):
-    # Create a new row in the Google Sheet
-    row = [outlet_name, date.isoformat(), amount, bill_no]
-    sheet.append_row(row)
+with st.spinner('Wait for it...'):
+    if st.button("Submit"):
+        if outlet_name and date and amount and bill_no and contact_no:
+            # Create a new row in the Google Sheet
+            row = [district_name, outlet_name, date.isoformat(), veh_type, amount, bill_no,contact_no]
+            sheet.append_row(row)
 
-    # Display a success message
-    st.success("Bill submitted successfully!")
+            # Display a success message
+            st.success("Bill submitted successfully!")
+            st.balloons()
+        else:
+            st.warning('Please Fill all details', icon="⚠️")
