@@ -31,13 +31,17 @@ sheet = client2.open_by_url(sheet_url).sheet1
 # Read Dealer Data
 df = pd.read_csv('Dealers.csv')
 
+# Read Dealer Data from gsheet
+# dsheet = client2.open_by_url(sheet_url).sheet2
+# df = pd.DataFrame(dsheet.get_all_records())
+
 # Display Image
 st.image(
         "https://i1.wp.com/hrnxt.com/wp-content/uploads/2021/07/Hindustan-Petroleum.jpg?resize=580%2C239&ssl=1",
         # Manually Adjust the width of the image as per requirement
     )
 # Create a form
-st.title("Bharo Aur Jeeto Dhamaka")
+st.header("Bharo Aur Jeeto Dhamaka")
 st.subheader("Please fill the details of Bill")
 district_name = st.selectbox("District",options=df['DISTRICT'].unique())
 
@@ -47,22 +51,27 @@ if district_name:
 date = st.date_input("Date")
 
 veh_type = st.radio("Type of Vehicle", ('2/3 Wheeler', '4 Wheeler'), horizontal=True)
-if veh_type == '2/3 Wheeler':
-    amount = st.number_input("Amount",min_value=350)
-else:
-    amount = st.number_input("Amount", min_value=2000)
+col1, col2 = st.columns(2)
+with col1:
+    if veh_type == '2/3 Wheeler':
+        amount = st.number_input("Bill Amount",min_value=350)
+    else:
+        amount = st.number_input("Bill Amount", min_value=2000)
 
-bill_no = st.number_input("Bill No",format="%0.0f")
-contact_no = st.number_input("Contact No.",format="%0.0f")
+with col2:
+    tank_full = st.checkbox("Tank Full", value=False)
+
+bill_no = st.number_input("Bill Number",format="%0.0f")
+contact_no = st.number_input("Mobile Number",format="%0.0f")
 
 st.info('Please retail the original bill till end of campaign period.', icon="ℹ️")
 
 # Submit the form
 with st.spinner('Wait for it...'):
-    if st.button("Submit"):
+    if st.button("Press To Submit"):
         if outlet_name and date and amount and bill_no and contact_no:
             # Create a new row in the Google Sheet
-            row = [district_name, outlet_name, date.isoformat(), veh_type, amount, bill_no,contact_no]
+            row = [district_name, outlet_name, date.isoformat(), veh_type, amount, bill_no,contact_no, tank_full]
             sheet.append_row(row)
 
             # Display a success message
