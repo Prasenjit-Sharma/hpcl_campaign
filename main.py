@@ -28,11 +28,11 @@ client2 = gspread.authorize(credentials=credentials)
 sheet = client2.open_by_url(sheet_url).sheet1
 
 # Read Dealer Data
-# df = pd.read_csv('Dealers.csv')
+df = pd.read_csv('Dealers.csv')
 
 # Read Dealer Data from gsheet
-dsheet = client2.open_by_url(sheet_url).worksheet('Dealer')
-df = pd.DataFrame(dsheet.get_all_records())
+# dsheet = client2.open_by_url(sheet_url).worksheet('Dealer')
+# df = pd.DataFrame(dsheet.get_all_records())
 
 
 # Display Image
